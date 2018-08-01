@@ -4,15 +4,15 @@
 
 (() => {
     function populateList(results) {
-        let template = 
-        `
-        <li class="user">
-            <img class="user-photo" src="{{ picture.thumbnail }}" alt="Photo of {{ name.first }} {{ name.last }}">
-            <div class="user-name">{{ name.first }} {{ name.last }}</div>
-            <div class="user-location">{{ location.city }}, {{ location.state }}</div>
-            <div class="user-email">{{ email }}</div>
-        </li>
-        `
+        // let template = 
+        // `
+        // <li class="user">
+        //     <img class="user-photo" src="{{ picture.thumbnail }}" alt="Photo of {{ name.first }} {{ name.last }}">
+        //     <div class="user-name">{{ name.first }} {{ name.last }}</div>
+        //     <div class="user-location">{{ location.city }}, {{ location.state }}</div>
+        //     <div class="user-email">{{ email }}</div>
+        // </li>
+        // `
 
         // Grab our user list element.
         let userList = document.getElementById('z-user-list');
@@ -20,11 +20,11 @@
             let user = results[i];
 
             // Render our template with the appropriate logic.
-            let userTemplate = renderTemplate(template, user);
-
             // After rendering the template with the appropriate data, we can insert the rendered template
             // within the userlist.
-            userList.insertAdjacentHTML('afterend', userTemplate);   
+            console.log(user);
+            renderTemplate('user', user)
+            .then(userTemplate => userList.insertAdjacentHTML('beforeend', userTemplate));
         }
     }
 
@@ -47,9 +47,11 @@
 
         // Taking the template string, finding all occurances of interpolated properties and replacing them with
         // their respective data.
-        return templateString.replace(propertyExpression, (match, capturedProperty) => 
-            capturedProperty.split('.').reduce((acc, cur) => (acc[cur]), data)
-        );
+        let url = templateString.includes('http://') ? templateString : `${templateString}.html`;
+
+        return fetch(url)
+        .then(res => res.text())
+        .then(template => template.replace(propertyExpression, (match, capturedProperty) => capturedProperty.split('.').reduce((acc, cur) => acc[cur], data)));
     }
 
     document.addEventListener('DOMContentLoaded', init);
