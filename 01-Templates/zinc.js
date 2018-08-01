@@ -7,9 +7,9 @@
         let template = 
         `
         <li class="user">
-            <img class="user-photo" src="{{ photo }}" alt="Photo of {{ firstName }} {{ lastName }}">
-            <div class="user-name">{{ firstName }} {{ lastName }}</div>
-            <div class="user-location">{{ city }}, {{ state }}</div>
+            <img class="user-photo" src="{{ picture.thumbnail }}" alt="Photo of {{ name.first }} {{ name.last }}">
+            <div class="user-name">{{ name.first }} {{ name.last }}</div>
+            <div class="user-location">{{ location.city }}, {{ location.state }}</div>
             <div class="user-email">{{ email }}</div>
         </li>
         `
@@ -19,16 +19,8 @@
         for (let i = 0; i < results.length; i++) {
             let user = results[i];
 
-            let userData = {};
-            userData.photo = user.picture.medium;
-            userData.firstName = capitalize(user.name.first);
-            userData.lastName = capitalize(user.name.last);
-            userData.city = capitalize(user.location.city);
-            userData.state = capitalize(user.location.state);
-            userData.email = user.email;
-
             // Render our template with the appropriate logic.
-            let userTemplate = renderTemplate(template, userData);
+            let userTemplate = renderTemplate(template, user);
 
             // After rendering the template with the appropriate data, we can insert the rendered template
             // within the userlist.
@@ -51,13 +43,13 @@
 
     function renderTemplate(templateString, data) {
         // Declaring regular expression to capture interpolated property.
-        let propertyExpression = /{{\s*(\w+)\s*}}/g;
+        let propertyExpression = /{{\s*([\w.]+)\s*}}/g;
 
         // Taking the template string, finding all occurances of interpolated properties and replacing them with
         // their respective data.
-        return templateString.replace(propertyExpression, (match, capturedProperty) => {
-            return data[capturedProperty]; 
-        });
+        return templateString.replace(propertyExpression, (match, capturedProperty) => 
+            capturedProperty.split('.').reduce((acc, cur) => (acc[cur]), data)
+        );
     }
 
     document.addEventListener('DOMContentLoaded', init);
